@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "MoAF.Core/1.0.0": {
+        "dependencies": {
+          "MoAF.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "MoAF.Core.dll": {}
+        }
+      },
+      "MoAF.Abstractions/1.0.0": {
+        "runtime": {
+          "MoAF.Abstractions.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MoAF.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MoAF.Abstractions/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppMain", "AppMain\AppMain.csproj", "{53220186-7A74-4057-B1B1-8416186FCE5C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{315636AD-6C60-4C95-BC74-269851BFC893}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueTimesService", "QueueTimesService\QueueTimesService.csproj", "{5ECFCE12-1647-4EBA-B68A-05D3B34C01A3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokyoDisneyLand", "TokyoDisneyLand\TokyoDisneyLand.csproj", "{015C7D00-9E6B-4491-8148-5D99B3AB818C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokyoDisneySea", "TokyoDisneySea\TokyoDisneySea.csproj", "{AA23BBC7-D2DC-497A-91F1-0E95D6015D0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalStudioJapan", "UniversalStudioJapan\UniversalStudioJapan.csproj", "{BA118AD3-E993-44CB-A43B-9D32331A6F89}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53220186-7A74-4057-B1B1-8416186FCE5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53220186-7A74-4057-B1B1-8416186FCE5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53220186-7A74-4057-B1B1-8416186FCE5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53220186-7A74-4057-B1B1-8416186FCE5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{315636AD-6C60-4C95-BC74-269851BFC893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{315636AD-6C60-4C95-BC74-269851BFC893}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{315636AD-6C60-4C95-BC74-269851BFC893}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{315636AD-6C60-4C95-BC74-269851BFC893}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ECFCE12-1647-4EBA-B68A-05D3B34C01A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ECFCE12-1647-4EBA-B68A-05D3B34C01A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ECFCE12-1647-4EBA-B68A-05D3B34C01A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ECFCE12-1647-4EBA-B68A-05D3B34C01A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{015C7D00-9E6B-4491-8148-5D99B3AB818C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{015C7D00-9E6B-4491-8148-5D99B3AB818C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{015C7D00-9E6B-4491-8148-5D99B3AB818C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{015C7D00-9E6B-4491-8148-5D99B3AB818C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA23BBC7-D2DC-497A-91F1-0E95D6015D0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA23BBC7-D2DC-497A-91F1-0E95D6015D0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA23BBC7-D2DC-497A-91F1-0E95D6015D0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA23BBC7-D2DC-497A-91F1-0E95D6015D0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA118AD3-E993-44CB-A43B-9D32331A6F89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA118AD3-E993-44CB-A43B-9D32331A6F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA118AD3-E993-44CB-A43B-9D32331A6F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA118AD3-E993-44CB-A43B-9D32331A6F89}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6CF45C99-2654-4DF7-80B8-73234BB64563}
+	EndGlobalSection
+EndGlobal
