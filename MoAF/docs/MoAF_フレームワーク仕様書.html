@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MoAF_フレームワーク仕様書.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="moaf-%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0%E3%83%AF%E3%83%BC%E3%82%AF%E4%BB%95%E6%A7%98%E6%9B%B8">MoAF フレームワーク仕様書</h1>
+<h2 id="%E7%9B%AE%E6%AC%A1">目次</h2>
+<ol>
+<li><a href="#1-%E6%A6%82%E8%A6%81">概要</a><br>
+1-1. <a href="#1-1-%E7%9B%AE%E7%9A%84">目的</a><br>
+1-2. <a href="#1-2-moaf-%E3%81%A8%E3%81%AF"><code>MoAF</code> とは</a></li>
+<li><a href="#2-%E7%94%A8%E8%AA%9E%E5%AE%9A%E7%BE%A9">用語定義</a><br>
+2-1. <a href="#2-1-%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB">モジュール</a><br>
+2-2. <a href="#2-2-%E3%82%AB%E3%82%BF%E3%83%AD%E3%82%B0">カタログ</a><br>
+2-3. <a href="#2-3-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A">コンテナ</a><br>
+2-4. <a href="#2-4-%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B5%E3%82%A4%E3%82%AF%E3%83%AB">ライフサイクル</a><br>
+2-5. <a href="#2-5-%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B9%E3%83%91%E3%83%B3">ライフスパン</a><br>
+2-6. <a href="#2-6-singleton">Singleton</a><br>
+2-7. <a href="#2-7-transient-%E6%9C%AA%E5%AE%9F%E8%A3%85">Transient (未実装)</a></li>
+<li><a href="#3-moaf-%E3%81%AE%E6%8F%90%E4%BE%9B%E6%A9%9F%E8%83%BD"><code>MoAF</code> の提供機能</a><br>
+3-1. <a href="#3-1-moaf-%E3%81%8C%E6%8F%90%E4%BE%9B%E3%81%99%E3%82%8B%E6%A9%9F%E8%83%BD"><code>MoAF</code> が提供する機能</a><br>
+3-2. <a href="#3-2-%E6%A9%9F%E8%83%BD%E8%A9%B3%E7%B4%B0">機能詳細</a></li>
+<li><a href="#4-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A">コンテナ</a><br>
+4-1. <a href="#4-1-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E6%A7%8B%E9%80%A0">コンテナ構造</a><br>
+4-1-1. <a href="#4-1-1-%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B9%E3%83%91%E3%83%B3">ライフスパン</a><br>
+4-1-2. <a href="#4-1-2-%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%97">サービスタイプ</a><br>
+4-1-3. <a href="#4-1-3-%E5%AE%9F%E8%A3%85%E3%82%BF%E3%82%A4%E3%83%97">実装タイプ</a><br>
+4-1-4. <a href="#4-1-4-%E7%99%BB%E9%8C%B2%E5%90%8D">登録名</a><br>
+4-1-5. <a href="#4-1-5-%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%82%B9">インスタンス</a><br>
+4-1-6. <a href="#4-1-6-%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%82%B9%E4%BD%9C%E6%88%90%E7%8A%B6%E6%B3%81">インスタンス作成状況</a><br>
+4-2. <a href="#4-2-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%81%B8%E3%81%AE%E7%99%BB%E9%8C%B2">コンテナへの登録</a><br>
+4-2-1. <a href="#4-2-1-singleton-%E7%99%BB%E9%8C%B2"><code>Singleton</code> 登録</a><br>
+4-2-2. <a href="#4-2-2-transient-%E7%99%BB%E9%8C%B2"><code>Transient</code> 登録</a><br>
+4-3. <a href="#4-3-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%81%8B%E3%82%89%E3%81%AE%E5%8F%96%E5%BE%97">コンテナからの取得</a><br>
+4-3-1. <a href="#4-3-1-singleton-%E5%8F%96%E5%BE%97"><code>Singleton</code> 取得</a><br>
+4-3-2. <a href="#4-3-2-transient-%E5%8F%96%E5%BE%97"><code>Transient</code> 取得</a></li>
+<li><a href="#5-%E5%90%84%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E7%99%BB%E9%8C%B2%E5%8F%96%E5%BE%97">各モジュールにおけるコンテナ登録・取得</a></li>
+<li><a href="#6-%E6%83%B3%E5%AE%9A%E3%81%99%E3%82%8B%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95">想定する使用方法</a><br>
+6-1. <a href="#6-1-%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E5%AE%9A%E7%BE%A9%E3%81%AE%E5%85%B1%E9%80%9A%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">ユーザー定義の共通インターフェースについて</a><br>
+6-2. <a href="#6-2-%E5%90%84%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">各モジュールについて</a><br>
+6-3. <a href="#6-3-%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E3%81%AE%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E7%AE%A1%E7%90%86%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">ユーザーのモジュール管理について</a></li>
+</ol>
+<p><a id=1-概要></a></p>
+<h2 id="1-%E6%A6%82%E8%A6%81">1. 概要</h2>
+<p><a id=1-1-目的></a></p>
+<h3 id="1-1-%E7%9B%AE%E7%9A%84">1-1. 目的</h3>
+<ul>
+<li>本書は、独自フレームワーク <code>Module Activation Framework (以降 MoAF)</code> の仕様書である。</li>
+<li><code>MoAF</code> の概要・提供機能および想定される使用方法について記載する。</li>
+</ul>
+<p><a id=1-2-moaf-とは></a></p>
+<h3 id="1-2-moaf-%E3%81%A8%E3%81%AF">1-2. <code>MoAF</code> とは</h3>
+<ul>
+<li><code>MoAF</code> は、プラグイン機能の提供と、コンテナを用いたインスタンス管理によるDI (Dependency Injection : 依存性注入) の提供を同時に行う独自フレームワークである。</li>
+<li><code>MoAF</code> を使用することで、モジュール間を疎結合にし、かつホストアプリケーションの再コンパイルを行わずにモジュールを追加/削除することが可能になる (プラグイン機能) 。</li>
+<li>本書更新時点で、WindowsFormアプリケーション (.Net) に特化している。</li>
+<li>WPFのフレームワークである <code>Prism</code> を参考に作成されている。</li>
+</ul>
+<p><a id=2-用語定義></a></p>
+<h2 id="2-%E7%94%A8%E8%AA%9E%E5%AE%9A%E7%BE%A9">2. 用語定義</h2>
+<table>
+<thead>
+<tr>
+<th>用語</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>モジュール</td>
+<td><code>MoAF</code> を使用可能なクラス<br>プラグイン対象</td>
+</tr>
+<tr>
+<td>カタログ</td>
+<td>モジュール候補を列挙する仕組み</td>
+</tr>
+<tr>
+<td>コンテナ</td>
+<td>依存性注入を行うためのDIコンテナ</td>
+</tr>
+<tr>
+<td>ライフサイクル</td>
+<td>モジュールの状態遷移 (初期化中 → 初期化完了 など)</td>
+</tr>
+<tr>
+<td>ライフスパン</td>
+<td>モジュールの寿命</td>
+</tr>
+<tr>
+<td>Singleton</td>
+<td>アプリケーション内で各インスタンスが1つしか生存できない性質</td>
+</tr>
+<tr>
+<td>Transient</td>
+<td>要求されるたびにインスタンスを生成する性質</td>
+</tr>
+</tbody>
+</table>
+<p><a id=2-1-モジュール></a></p>
+<h3 id="2-1-%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB">2-1. モジュール</h3>
+<ul>
+<li>コンテナへの登録、コンテナからの取得を可能にするインターフェース (以降、<code>MoAFインターフェース</code>) を継承しているクラスが該当する。</li>
+</ul>
+<p><a id=2-2-カタログ></a></p>
+<h3 id="2-2-%E3%82%AB%E3%82%BF%E3%83%AD%E3%82%B0">2-2. カタログ</h3>
+<ul>
+<li>ディレクトリに存在する全DLLを確認し、モジュール候補を自動検出する。</li>
+</ul>
+<p><a id=2-3-コンテナ></a></p>
+<h3 id="2-3-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A">2-3. コンテナ</h3>
+<ul>
+<li>モジュールおよび、非モジュール (<code>MoAFインターフェース</code> を継承していないクラス) の登録、取得制御を行う。 (将来的には削除制御も導入予定)</li>
+</ul>
+<p><a id=2-4-ライフサイクル></a></p>
+<h3 id="2-4-%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B5%E3%82%A4%E3%82%AF%E3%83%AB">2-4. ライフサイクル</h3>
+<ul>
+<li>ライフサイクルは以下の7通り。
+<ul>
+<li>モジュール登録開始前</li>
+<li>モジュール読み込み中</li>
+<li>モジュール読み込み完了</li>
+<li>モジュール内部設定中</li>
+<li>モジュール内部設定完了</li>
+<li>モジュール初期化中</li>
+<li>モジュール初期化完了</li>
+</ul>
+</li>
+</ul>
+<p><a id=2-5-ライフスパン></a></p>
+<h3 id="2-5-%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B9%E3%83%91%E3%83%B3">2-5. ライフスパン</h3>
+<ul>
+<li>現状は <code>Singleton</code> のみ設定可能。将来的に <code>Transient</code> を導入予定。</li>
+</ul>
+<p><a id=2-6-singleton></a></p>
+<h3 id="2-6-singleton">2-6. Singleton</h3>
+<ul>
+<li>アプリケーション内で、各クラスにつきインスタンスが1つしか生成できないため、寿命はアプリケーション終了 (厳密にはコンテナ終了) までとなる。</li>
+<li><code>MoAF</code> では、コンテナ登録時にのみインスタンスを生成する。</li>
+</ul>
+<p><a id=2-7-transient-未実装></a></p>
+<h3 id="2-7-transient-%E6%9C%AA%E5%AE%9F%E8%A3%85">2-7. Transient (未実装)</h3>
+<ul>
+<li>要求されるたびにインスタンスを生成するため、寿命はその場限りとなる。</li>
+<li><code>MoAF</code> では、取得時にインスタンスを生成する予定。</li>
+</ul>
+<p><a id=3-moaf-の提供機能></a></p>
+<h2 id="3-moaf-%E3%81%AE%E6%8F%90%E4%BE%9B%E6%A9%9F%E8%83%BD">3. <code>MoAF</code> の提供機能</h2>
+<p><a id=3-1-moaf-が提供する機能></a></p>
+<h3 id="3-1-moaf-%E3%81%8C%E6%8F%90%E4%BE%9B%E3%81%99%E3%82%8B%E6%A9%9F%E8%83%BD">3-1. <code>MoAF</code> が提供する機能</h3>
+<ul>
+<li>指定ディレクトリ内のモジュール自動検出 (プラグイン機能)</li>
+<li>DIコンテナを用いたモジュール管理 (DI機能)</li>
+</ul>
+<p><a id=3-2-機能詳細></a></p>
+<h3 id="3-2-%E6%A9%9F%E8%83%BD%E8%A9%B3%E7%B4%B0">3-2. 機能詳細</h3>
+<ol>
+<li>ホストアプリケーションは、カタログ処理を実施するディレクトリを指定する。</li>
+<li><code>MoAF</code> は、指定されたディレクトリに対しカタログ処理を実施する。 -&gt; ライフサイクル : モジュール登録開始前</li>
+<li>2.で検出されたモジュールを <code>Singleton</code> でコンテナに登録する。 -&gt; ライフサイクル : モジュール読み込み中 ~ 完了</li>
+<li>3.で登録したモジュールに対し、モジュール内部のコンテナ登録を行う。 -&gt; ライフサイクル : モジュール内部設定中 ~ 完了</li>
+<li>3.で登録したモジュールに対し、初期化処理を行う。 (モジュール側でコンテナからインスタンス取り出しも可能) → ライフサイクル : 初期化中</li>
+<li>ホストアプリケーションに、3.で登録したモジュールの初期化が完了したことを通知する。 -&gt; ライフサイクル : 初期化完了</li>
+<li>3.~6.をカタログ処理で取得した全モジュールに対して実施する。</li>
+<li>実施完了後、全モジュールのライフサイクルが <code>初期化完了</code> であることを確認し、全モジュールの初期化が完了したことをホストアプリケーションに通知する。</li>
+</ol>
+<p><a id=4-コンテナ></a></p>
+<h2 id="4-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A">4. コンテナ</h2>
+<p><a id=4-1-コンテナ構造></a></p>
+<h3 id="4-1-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E6%A7%8B%E9%80%A0">4-1. コンテナ構造</h3>
+<ul>
+<li>コンテナは、1つのインスタンスに対し以下の情報群を所持している。
+<ul>
+<li>ライフスパン</li>
+<li>サービスタイプ</li>
+<li>実装タイプ</li>
+<li>登録名</li>
+<li>インスタンス</li>
+<li>インスタンス作成状況</li>
+</ul>
+</li>
+</ul>
+<p><a id=4-1-1-ライフスパン></a></p>
+<h4 id="4-1-1-%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B9%E3%83%91%E3%83%B3">4-1-1. ライフスパン</h4>
+<ul>
+<li>登録するインスタンスのライフスパン。</li>
+<li>現状は <code>Singleton</code> のみ。</li>
+</ul>
+<p><a id=4-1-2-サービスタイプ></a></p>
+<h4 id="4-1-2-%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%97">4-1-2. サービスタイプ</h4>
+<ul>
+<li>登録するインスタンスのクラス、または継承しているインターフェース/クラス。</li>
+<li>ユーザーが明確に指定しない場合、登録するインスタンスのクラスが入る。</li>
+</ul>
+<p><a id=4-1-3-実装タイプ></a></p>
+<h4 id="4-1-3-%E5%AE%9F%E8%A3%85%E3%82%BF%E3%82%A4%E3%83%97">4-1-3. 実装タイプ</h4>
+<ul>
+<li>登録するインスタンスのクラス。</li>
+</ul>
+<p><a id=4-1-4-登録名></a></p>
+<h4 id="4-1-4-%E7%99%BB%E9%8C%B2%E5%90%8D">4-1-4. 登録名</h4>
+<ul>
+<li>取得の際に使用可能な検索キー。</li>
+<li>設定は任意のため、未指定も可。</li>
+</ul>
+<p><a id=4-1-5-インスタンス></a></p>
+<h4 id="4-1-5-%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%82%B9">4-1-5. インスタンス</h4>
+<ul>
+<li>作成されたインスタンス。</li>
+</ul>
+<p><a id=4-1-6-インスタンス作成状況></a></p>
+<h4 id="4-1-6-%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%82%B9%E4%BD%9C%E6%88%90%E7%8A%B6%E6%B3%81">4-1-6. インスタンス作成状況</h4>
+<ul>
+<li>以下の2つの状態を持つ。
+<ul>
+<li>未作成</li>
+<li>作成済み</li>
+</ul>
+</li>
+</ul>
+<p><a id=4-2-コンテナへの登録></a></p>
+<h3 id="4-2-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%81%B8%E3%81%AE%E7%99%BB%E9%8C%B2">4-2. コンテナへの登録</h3>
+<p><a id=4-2-1-singleton-登録></a></p>
+<h4 id="4-2-1-singleton-%E7%99%BB%E9%8C%B2">4-2-1. <code>Singleton</code> 登録</h4>
+<ol>
+<li>サービスタイプ、実装タイプ、登録名が全て一致した場合はリストに対し新規登録を行わない。 (登録内容が重複するため)</li>
+<li>実装タイプが同じで、サービスタイプまたは登録名が異なる場合は、同じインスタンスを指定してリストへ登録する。</li>
+<li>実装タイプが異なる場合は、インスタンスを新規作成しリストへ登録する。</li>
+</ol>
+<p><a id=4-2-2-transient-登録></a></p>
+<h4 id="4-2-2-transient-%E7%99%BB%E9%8C%B2">4-2-2. <code>Transient</code> 登録</h4>
+<ul>
+<li>T.B.D.</li>
+</ul>
+<p><a id=4-3-コンテナからの取得></a></p>
+<h3 id="4-3-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%81%8B%E3%82%89%E3%81%AE%E5%8F%96%E5%BE%97">4-3. コンテナからの取得</h3>
+<ul>
+<li>取得にあたり、ユーザーは以下の2つの情報を指定する。
+<ul>
+<li>取得タイプ</li>
+<li>検索キー</li>
+</ul>
+</li>
+</ul>
+<p><a id=4-3-1-singleton-取得></a></p>
+<h4 id="4-3-1-singleton-%E5%8F%96%E5%BE%97">4-3-1. <code>Singleton</code> 取得</h4>
+<ol>
+<li>取得タイプと実装タイプが一致するインスタンスが存在する場合。
+<ol>
+<li>検索キーと登録名が一致するものを取得する。</li>
+<li>1.が満たされなかった場合、かつ取得タイプと実装タイプの一致が1つのみの場合はそれを取得する。</li>
+<li>1.と2.を両方満たさなかった場合は取得不能。</li>
+</ol>
+</li>
+<li>取得タイプと実装タイプが一致するインスタンスがなく、取得タイプとサービスタイプが一致するインスタンスが存在する場合。
+<ol>
+<li>1-1.と同様。</li>
+<li>1-2.と同様。</li>
+<li>1-3.と同様。</li>
+</ol>
+</li>
+</ol>
+<p><a id=4-3-2-transient-取得></a></p>
+<h4 id="4-3-2-transient-%E5%8F%96%E5%BE%97">4-3-2. <code>Transient</code> 取得</h4>
+<ul>
+<li>T.B.D.</li>
+</ul>
+<p><a id=5-各モジュールにおけるコンテナ登録取得></a></p>
+<h2 id="5-%E5%90%84%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E7%99%BB%E9%8C%B2%E3%83%BB%E5%8F%96%E5%BE%97">5. 各モジュールにおけるコンテナ登録・取得</h2>
+<ul>
+<li>各モジュールでは、モジュール内部設定処理にてコンテナへの登録、モジュール初期化処理にてコンテナからの取得を行うことができる。</li>
+<li>コンテナへの登録については、モジュール内で使用しているクラスの登録が可能である。
+例を以下に示す。
+<ul>
+<li>とあるモジュールに、<code>Manager</code> クラスと <code>Calculator</code> クラスがあったとする。</li>
+<li><code>Manager</code> クラスは <code>Calculator</code> クラスを所有しており、コンストラクタで <code>Calculator</code> クラスを受け取るとする。</li>
+<li>モジュール内部設定処理で、<code>Calculator</code> クラスをコンテナ登録後に、<code>Manager</code> クラスを登録する。</li>
+<li>こうすることで、自身でインスタンス化を一切せずに、<code>Manager</code> クラスは <code>Calculator</code> クラスを所有可能になる。</li>
+<li>省略したが、<code>Calculator</code> クラスが <code>ICalculator</code> インターフェースを継承していた場合、<code>Manager</code> クラスにおいてDIが可能になる。</li>
+</ul>
+</li>
+<li>コンテナからの取得については、原則自身のモジュールで登録したインスタンスのみ取得可能とする。
+<ul>
+<li>他モジュールにおける登録名を知っていれば取得は可能だが、それを行うとモジュール間の結合が強まるため、原則は禁止。</li>
+<li>しかし、システム的には可能なため、ユーザーの裁量次第である。</li>
+</ul>
+</li>
+</ul>
+<p><a id=6-想定する使用方法></a></p>
+<h2 id="6-%E6%83%B3%E5%AE%9A%E3%81%99%E3%82%8B%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95">6. 想定する使用方法</h2>
+<ul>
+<li><code>MoAF</code> は、以下のように使用されることを想定している。</li>
+</ul>
+<p><a id= 6-1-ユーザ定義の共通インラーフェースについて></a></p>
+<h3 id="6-1-%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E5%AE%9A%E7%BE%A9%E3%81%AE%E5%85%B1%E9%80%9A%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">6-1. ユーザー定義の共通インターフェースについて</h3>
+<ul>
+<li>各モジュールは、ユーザー定義の共通インターフェースを継承する。</li>
+<li>共通インターフェースは、モジュールが<code>実装しているインターフェース</code>と、モジュールが<code>使用するインターフェース</code>をそれぞれ取得するための受け口を用意する。
+<ul>
+<li>例えば、<code>Calculator</code> モジュールは、<code>ICalculator</code> インタフェースを実装 (継承) し、<code>IAdd</code> インターフェースを使用するなど</li>
+</ul>
+</li>
+</ul>
+<p><a id= 6-2-各モジュールについて></a></p>
+<h3 id="6-2-%E5%90%84%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">6-2. 各モジュールについて</h3>
+<ul>
+<li>各モジュールは、他モジュールとやりとりを行うインターフェースとして機能する。</li>
+<li><code>MoAFインターフェース</code> と、ユーザー定義の共通インターフェースの他に、ユーザー定義のインターフェースを最低1つは継承している。 (継承していない場合、ホストアプリケーションや他モジュールからの参照が不能)</li>
+</ul>
+<p><a id= 6-3-ユーザのモジュール管理について></a></p>
+<h3 id="6-3-%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E3%81%AE%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E7%AE%A1%E7%90%86%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6">6-3. ユーザーのモジュール管理について</h3>
+<ul>
+<li>ユーザー側では、<code>MoAF</code> から受け取った各モジュールにおいて、共通インターフェースを継承しているもののみを抽出する。 (全モジュールが該当するはず)</li>
+<li>抽出した各モジュールについて、共通インターフェースを使用し、<code>実装しているインターフェース</code>と、<code>使用するインターフェース</code>を取得する。</li>
+<li><code>使用するインターフェース</code>を実装している全モジュールを渡す。</li>
+<li>こうすることで、各モジュールは他モジュールの実体を知ることなく、インターフェースを経由してやりとりすることができる。</li>
+<li>ホストアプリケーションが既知のインターフェースを使用すれば、ホストアプリケーションの再コンパイルなしに、モジュールの追加が可能となる。</li>
+</ul>
+<hr>
+<h2 id="%E6%94%B9%E8%A8%82%E5%B1%A5%E6%AD%B4">改訂履歴</h2>
+<table>
+<thead>
+<tr>
+<th>版数</th>
+<th>改訂日</th>
+<th>改訂箇所</th>
+<th>改訂内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初版</td>
+<td>2026/03/10</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+
+</body>
+</html>

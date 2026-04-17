@@ -1,0 +1,585 @@
+= MoAF 全体設計書
+:doctype: article
+:encoding: utf-8
+:lang: ja
+:toc: macro
+:toc-title: 目次
+:toclevels: 2
+:numbered:
+:imagesdir: ./images
+
+toc::[]
+
+== 概要
+
+=== フレームワークの目的
+* `Module Activation Framework (以降、MoAF)` は、プラグイン機能とDI (Dependency Injection : 依存性注入) を同時に提供することにより、モジュールの独立と疎結合な設計を実現することを目的としている。
+* `MoAF` は、モジュール間疎結合なアプリケーションの作成を可能にするために作成された、C#に対応したフレームワークである。
+
+=== 現行の課題
+* 従来、C# (特に `WindowsForm`) でモジュール間参照を行うにはプロジェクトまたはDLLの参照が必要であった。
+* プロジェクトやDLL参照のデメリットは、モジュール間の結合が強まることである。
+* DIによりインターフェースを介してモジュール間の制御を行うことで結合度を下げることが可能であるが、各モジュールに実体を注入するため、ホストアプリケーション等でモジュールのプロジェクトやDLLの参照は必要になる。
+* それにより、ホストアプリケーションとモジュールの結合度が強まり、プラグイン機能の提供等が難しいという課題があった。
+
+=== フレームワークが解決する課題
+* `MoAF` を使用することで、モジュール間で実体を把握することなく制御が可能となり、各モジュールが独立し、モジュール間疎結合なアプリケーション作成が可能となる。
+* ホストアプリケーションにおいてもプロジェクトやDLLを参照する必要がなくなり、ホストアプリケーションとモジュールも疎結合となる。
+* `MoAF` は、事前にユーザー定義したインターフェースを介して制御を行う場合に、非常に強力な効果を発揮する。
+* インターフェースの新規追加がない限り、ホストアプリケーションの再コンパイルなしに機能の拡張・収縮が可能になる。
+
+=== 想定ユーザー
+* `MoAF` は、C#の `WinFormアプリ (.Net)` を対象に作成されている。
+* `MoAF` は、`WinFormアプリ (.Net)` を以下のように開発するユーザーに最適なフレームワークである。
+  ** プラグイン型アプリケーション
+  ** 依存関係が複雑化しやすいアプリケーション (大規模アプリケーションなど)
+  ** 機能追加が頻繁に発生するアプリケーション
+  ** 顧客毎に提供機能が変化するアプリケーション
+
+== アーキテクチャ設計
+* 詳細な設計に関しては、個別に設計書を作成するため、ここでは全体の構成のみを取り上げる。
+* クラス詳細、関数詳細などは、以下の設計書を参照すること。
+  ** `MoAF_Abstractions_設計書` (T.B.D.)
+  ** `MoAF_Core_設計書` (T.B.D.)
+  ** `MoAF_Container_設計書` (T.B.D.)
+
+=== 全体構成図
+[plantuml]
+----
+@startuml
+hide empty members
+package Abstractions {
+  package Modules {
+    interface IModule {
+    }
+  }
+  package Container {
+    interface IContainerProvider {
+    }
+    interface IContainerRegistry {
+    }
+  }
+}
+package Core {
+  package Application {
+    abstract class MoAFApp {
+    }
+  }
+  package Modules {
+    interface IModuleCatalog {
+    }
+    interface IModuleInfo {
+    }
+    interface IModuleManager {
+    }
+    class DirectoryModuleCatalog {
+    }
+    class ModuleInformation {
+    }
+    class ModuleManager {
+    }
+  }
+}
+package Container {
+  interface IContainerManager {
+  }
+  class ContainerManager {
+  }
+  class ContainerProvider {
+  }
+  class ContainerRegistry {
+  }
+  class ContainerAutoStarter {
+  }
+}
+
+IModuleCatalog <|.. DirectoryModuleCatalog
+IModuleInfo <.. DirectoryModuleCatalog
+IModule <.. DirectoryModuleCatalog
+IModuleInfo <|.. ModuleInformation
+IModuleManager <|.. ModuleManager
+IModuleInfo <.. ModuleManager
+IContainerProvider <.. MoAFApp
+IContainerRegistry <.. MoAFApp
+IModuleCatalog <.. MoAFApp
+IModuleManager <.. MoAFApp
+ContainerManager <.. ContainerAutoStarter
+IContainerRegistry <.. IContainerManager
+IContainerProvider <.. IContainerManager
+IContainerManager <|.. ContainerManager
+IContainerProvider <|.. ContainerProvider
+IContainerRegistry <|.. ContainerRegistry
+MoAFApp <.. ContainerManager 
+
+@enduml
+----
+
+=== 構成詳細
+==== Abstractions
+* `Abstractions` は、モジュールへ公開するインターフェースを定義したプロジェクトである。
+  ** `IModule` は、モジュールが実装しなくてはならないインターフェース
+  ** `IContainerRegistry` は、モジュールがDIコンテナにインスタンスを登録するためのインターフェース
+  ** `IContainerProvider` は、モジュールがDIコンテナからインスタンスを取得するためのインターフェース
+
+==== Core
+* `Core` は、ホストアプリケーションへ公開するプロジェクトである。
+  ** `MoAFApp` は、ホストアプリケーションが継承する抽象クラス
+  ** `IModuleCatalog`,`DirectoryModuleCatalog` は、カタログ処理のインターフェースとクラス
+  ** `IModuleInfo`, `ModuleInformation` は、モジュール情報のインターフェースとクラス
+  ** `IModuleManager`, `ModuleManager` は、モジュール管理のインターフェースとクラス
+
+[plantuml]
+----
+@startuml
+hide empty members
+package Abstractions {
+  package Modules {
+    interface IModule {
+    }
+  }
+  package Container {
+    interface IContainerProvider {
+    }
+    interface IContainerRegistry {
+    }
+  }
+}
+package Core {
+  package Application {
+    abstract class MoAFApp {
+    }
+  }
+  package Modules {
+    interface IModuleCatalog {
+    }
+    interface IModuleInfo {
+    }
+    interface IModuleManager {
+    }
+    class DirectoryModuleCatalog {
+    }
+    class ModuleInformation {
+    }
+    class ModuleManager {
+    }
+  }
+}
+
+IModuleCatalog <|.. DirectoryModuleCatalog
+IModuleInfo <.up. DirectoryModuleCatalog
+IModule <.up. DirectoryModuleCatalog
+IModuleInfo <|.. ModuleInformation
+IModuleManager <|.. ModuleManager
+IModuleInfo <.up. ModuleManager
+IContainerProvider <.up. MoAFApp
+IContainerRegistry <.up. MoAFApp
+IModuleCatalog <.up. MoAFApp
+IModuleManager <.up. MoAFApp
+
+@enduml
+----
+
+==== Container
+* `Container` は、DIコンテナの管理を行うプロジェクトである。 +
+`MoAF` 内部で取り扱うプロジェクトであり、ユーザーへの公開は想定していない。
+  ** `IContainerManager`, `ContainerManager` は、DIコンテナ管理のインターフェースとクラス
+  ** `ContainerManager` は、`MoAFApp` が所有する `IContanerRegistry`, `IContainerProvider` に対して、静的メソッドを経由して実体を注入する
+  ** `ContainerAutoStarter` は、アプリケーション起動時に `ContainerManager` を自動的に起動するクラス
+  ** `IContainerProvider`, `ContainerProvider` は、DIコンテナからインスタンスを取得するためのインターフェースとクラス
+  ** `IContainerRegistry`, `ContainerRegistry` は、DIコンテナにインスタンスを登録するためのインターフェースとクラス
+  ** `ContainerResolveStruct` は、DIコンテナからインスタンスを取得する際の構造体
+  ** `ContainerStruct` は、DIコンテナにインスタンスを登録する際の構造体
+
+[plantuml]
+----
+@startuml
+hide empty members
+package Abstractions {
+  package Container {
+    interface IContainerProvider {
+    }
+    interface IContainerRegistry {
+    }
+  }
+}
+package Core {
+  package Application {
+    abstract class MoAFApp {
+    }
+  }
+}
+package Container {
+  interface IContainerManager {
+  }
+  class ContainerManager {
+  }
+  class ContainerProvider {
+  }
+  class ContainerRegistry {
+  }
+  class ContainerAutoStarter {
+  }
+}
+
+ContainerManager <.up. ContainerAutoStarter
+IContainerRegistry <.up. IContainerManager
+IContainerProvider <.up. IContainerManager
+IContainerManager <|.. ContainerManager
+IContainerProvider <|.. ContainerProvider
+IContainerRegistry <|.. ContainerRegistry
+MoAFApp <.up. ContainerManager 
+
+@enduml
+----
+
+== 起動シーケンス
+* `MoAF` では、`Program.cs` の `Main` メソッドで、`MoAFApp` を継承したクラスの `Run` メソッドを呼び出すことでアプリケーションが起動する。
+
+[plantuml]
+----
+@startuml
+title 起動シーケンス
+
+participant "Program.cs" as program
+participant "MoAFApp継承クラス" as app
+participant "MoAFApp" as moaf
+participant "IModuleCatalog" as catalog
+participant "IModuleManager" as manager
+participant "Container" as container
+participant "Module (User定義)" as module
+participant "AppWindow (User定義)" as appwindow
+
+program -> app: create
+app -> moaf: create
+moaf --> app
+app --> program
+program -> app: Run()
+app -> moaf: Run()
+moaf -> catalog: Run()
+catalog -> catalog: モジュール読み込み\nモジュールリストの作成
+catalog --> moaf
+moaf -> manager: IModuleCatalogを渡す
+manager -> catalog: モジュールリスト取得
+catalog --> manager: モジュールリスト
+manager --> moaf
+moaf -> manager: Run()
+loop モジュールリストをループ
+  manager -> container: モジュールを登録
+  container --> manager
+  manager -> container: 登録したモジュールを取得
+  container --> manager: モジュール
+  manager -> module: モジュール内部設定
+  module -> container: 必要なクラスを登録
+  container --> module
+  module --> manager
+  manager -> module: 初期化
+  module -> container: 登録したクラスの\nインスタンスを取得
+  container --> module: インスタンス
+  module --> manager
+  manager -> app: モジュール初期化完了通知\n<color:red>(「MoAFApp継承クラス」である必要はない。</color>\n<color:red>ユーザーが任意のクラスで受け取ることができる)</color>
+  app --> manager
+end
+manager --> moaf
+moaf -> manager: 全モジュール初期化完了
+manager -> app: 全モジュール初期化完了通知\n<color:red>(「MoAFApp継承クラス」である必要はない。</color>\n<color:red>ユーザーが任意のクラスで受け取ることができる)</color>
+app --> manager
+manager --> moaf
+moaf -> appwindow: アプリケーションウィンドウ作成・起動
+appwindow --> moaf
+moaf --> app
+app --> program
+@enduml
+----
+
+== `MoAF` 使用詳細
+* `MoAF` は、プラグインとDIコンテナの提供により、疎結合な設計を可能にするフレームワークである。
+* そのため、有効的に使用するには、ユーザーが `MoAF` の提供する機能を理解し、適切に使用する必要がある。
+* ここでは、`MoAF` の使用に関する詳細を説明する。 +
+(`MoAF_フレームワーク仕様書` と競合する部分もあるが、より実装に近い内容を記載する)
+
+=== ユーザー定義の共通インターフェース
+* まず、`MoAF` の使用にあたり、ユーザーが共通インターフェースを作成することが重要である。
+* 例えば、以下のようなインターフェースを作成する。
+
+[plantuml]
+----
+@startuml
+hide empty members
+
+package User.Common {
+  enum InterfaceType {
+    UserA = 0
+    UserB = 1
+    UserC = 2
+  }
+
+  struct ModuleInfo {
+    string ModuleName
+    string ModuleId
+    interfaceType[] InterfaceImplemented
+    interfaceType[] InterfaceUsed
+  }
+
+  interface IUserInterface {
+    ModuleInfo GetModuleInfo()
+    void Initialize(Directory<IntefaceType, IUserInterface[]>)
+  }
+}
+
+InterfaceType <.. ModuleInfo
+ModuleInfo <.. IUserInterface
+@enduml
+----
+* それぞれ、以下のような役割がある
+  ** `IUserInterface`
+    *** 各モジュールが実装するインターフェース
+    *** `GetModuleInfo` メソッドで、モジュールの情報を取得する
+    *** `Initialize` メソッドで、モジュールの初期化を行う +
+    (詳細に関しては、`4.3 ホストアプリケーションによるモジュールの使用について` の内容を参照)
+  ** `ModuleInfo`
+    *** モジュールの情報を格納する構造体
+    *** `ModuleName` は、モジュールの名前を格納する
+    *** `ModuleId` は、モジュールのIDを格納する
+    *** `InterfaceImplemented` は、モジュールが実装する `InterfaceType` を格納する
+    *** `InterfaceUsed` は、モジュールが使用する `InterfaceType` を格納する
+  ** `InterfaceType`
+    *** モジュールが実装するインターフェースの種類を定義する列挙体
+    *** `UserA`, `UserB`, `UserC` は、ユーザーが定義するインターフェースの種類を表す +
+    (例えば、`InterfaceType.UserA` は `IUserA` に対応するなど)
+  
+=== モジュールについて
+* `モジュール` は、`MoAF` が提供する `IModule` を実装したクラスを表す。
+* 同一DLL (プロジェクト) 内に複数のモジュールを作成することも可能ではあるが、`疎結合` という観点から、基本的には1つのDLL (プロジェクト) に1モジュール作成することが望ましい。
+* `MoAF` を適切に使用する上で、モジュールは `IModule` の他に `IUserInterface` を実装する必要がある。
+* 加えて、ユーザー定義のインターフェース (例えば `IUserA` など) を実装することが基本的な使用方法となる。
+* 例えば、以下のようなモジュールを作成する。
+
+[plantuml]
+----
+@startuml
+hide empty members
+
+package MoAF.Abstractions.Modules {
+  interface IModule {
+    void RegisterTypes(IContainerRegistry)
+    void OnInitialized(IContainerProvider)
+  }
+}
+
+package User.Common {
+  interface IUserInterface {
+    ModuleInfo GetModuleInfo()
+    void Initialize(Directory<IntefaceType, IUserInterface[]>)
+  }  
+  interface IUserA {
+    void UserMethodA()
+  }
+  interface IUserB {
+    void UserMethodB()
+  }
+}
+
+package User.ModuleA {
+  class ModuleAPortal {
+    ModuleAManager manager
+    ModuleInfo info
+    List<IUserB> userBList
+    
+    void RegisterTypes(IContainerRegistry)
+    void OnInitialized(IContainerProvider)
+    ModuleInfo GetModuleInfo()
+    void Initialize(Directory<IntefaceType, IUserInterface[]>)
+    void UserMethodA()
+  }
+  class ModuleAManager {
+    void RunMethodA()
+  }
+}
+IModule <|.. ModuleAPortal
+IUserInterface <|.. ModuleAPortal
+IUserA <|.. ModuleAPortal
+IUserB <.down. ModuleAPortal
+ModuleAManager <.up. ModuleAPortal
+
+@enduml
+----
+* `ModuleAPortal` クラスは `IUserA` インターフェースを実装し、`IUserB` インターフェースを使用する。 +
+ゆえに、`ModuleInfo` の `InterfaceImplemented` には `InterfaceType.UserA` を、`InterfaceUsed` には `InterfaceType.UserB` を設定する。
+* `userBList` は、`IUserInterface` の `Initialize` メソッドで受け取った、`IUserB` を実装するモジュールのインスタンスを格納する。
+* `ModuleAManager` クラスは、`ModuleAPortal` クラスの内部クラスであり、`ModuleAPortal` クラスの機能を実装するためのクラスである。
+* `IModule` の `RegisterTypes` メソッドで、`ModuleAManager` クラスを `IContainerRegistry` に登録する。
+* 同じく `IModule` の `RegisterTypes` メソッドで、`ModuleAPortal` クラス自身を `IContainerRegistry` に登録する。 +
+この際、サービスタイプは `IUserInterface` として登録を行う。 +
+それにより、ホストアプリケーション側で、ユーザー自身が作成したモジュールだということが、`IUserInterface` を介して把握することが可能になる。
+
+=== ホストアプリケーションによるモジュールの使用について
+* ホストアプリケーションでは、`MoAFApp` を継承したクラスを作成し、`Run` メソッドを呼び出しアプリケーションを起動する役割を担う。
+* 例えば、以下のようなホスアプリケーションを作成する。
+
+[plantuml]
+----
+@startuml
+hide empty members
+
+package MoAF.Core.Application {
+  abstract class MoAFApp {
+    void Run()
+  }
+}
+
+package User.Common {
+  interface IUserA {
+    void UserMethodA()
+  }
+  interface IUserB {
+    void UserMethodB()
+  }
+  interface IUserInterface {
+    ModuleInfo GetModuleInfo()
+    void Initialize(Directory<IntefaceType, IUserInterface[]>)
+  }
+}
+
+package User.App {
+  class AppMain {
+    List<IUserInterface> userInterfaceList
+    List<IUserA> userAList
+    List<IUserB> userBList
+    void Run()
+    void LoadModuleCompleted(object, LoadModuleCompletedEventArgs)
+    void LoadAllModuleCompleted(object, LoadAllModuleCompletedEventArgs)
+  }
+}
+@enduml
+
+MoAFApp <|.. AppMain
+IUserA <.up. AppMain
+IUserB <.up. AppMain
+IUserInterface <.up. AppMain
+----
+
+* シーケンスは以下。
+
+[plantuml]
+----
+@startuml
+title 起動時シーケンス
+
+participant "Program.cs" as program
+participant "AppMain" as app
+participant "MoAFApp" as moaf
+participant "MoAF.Core" as core
+participant "MoAF.Container" as container
+participant "ModuleAPortal" as moduleA
+participant "ModuleBPortal" as moduleB
+
+program -> app: create
+app -> moaf: create
+moaf --> app
+app --> program
+program -> app: Run()
+app -> moaf: Run()
+moaf -> core: Run()
+core -> core: モジュール読み込み
+loop モジュール分ループ\n(ここでは、ModuleAPortalのみ。ModuleBPortalなど、他モジュールでも流れは同じ)
+  core -> moduleA: RegisterTypes()
+  moduleA -> container: ModuleAPortal\n(サービスタイプは IUserInterface)\nと \nModuleAManager\nを登録
+  container --> moduleA
+  moduleA --> core
+  core -> moduleA: OnInitialized()
+  moduleA -> container: ModuleAManager のインスタンスを取得
+  container --> moduleA: ModuleAManager のインスタンス
+  moduleA --> core
+  core -> app: LoadModuleCompleted()
+  app -> app: 引数で受け取った\nLoadModuleCompletedEventArgs\nから\nModuleType\nを取得
+  app -> container: ModuleType から\nModuleAPortal のインスタンスを取得
+  container --> app: ModuleAPortal のインスタンス
+  alt 取得したインスタンスが IUserInterface を実装している場合
+    app -> app: IUserInterface としてキャスト
+    app -> app: userInterfaceList に追加
+  end
+  app --> core
+end
+core --> moaf
+moaf -> core: RunLoadAllModuleCompleted()
+core -> app: LoadAllModuleCompleted()
+loop userInterfaceList をループ\n(ここでは、ModuleAPortalのみ)
+  app -> app: Dictionary<InterfaceType, IUserInterface[]> を作成\n→ implementedBy
+  app -> moduleA: GetModuleInfo()
+  moduleA --> app: ModuleInfo(moduleA)
+  loop ModuleInfo(moduleA).InterfaceUsed をループ -> interfaceUsed
+    loop userInterfaceList をループ\n(ここでは、ModuleBPortalのみ)
+      app -> moduleB: GetModuleInfo()
+      moduleB --> app: ModuleInfo(moduleB)
+      alt ModuleInfo(moduleB).InterfaceImplemented に\ninterfaceUsed が含まれている場合
+        app -> app: Key を interfaceUsed\nValue を module\nにして\nimplementedBy にを追加
+      end
+    end
+  end
+  app -> moduleA: Initialize(implementedBy)
+  loop implementedBy をループ -> implemented
+    moduleA -> moduleA: implemented を userBList に追加
+  end
+  moduleA --> app
+end
+loop userInterfaceList をループ\n(ここでは、ModuleAPortalのみ) -> module
+  app -> moduleA: GetModuleInfo()
+  moduleA --> app: ModuleInfo(moduleA)
+  loop ModuleInfo(moduleA).InterfaceImplemented をループ -> interfaceImplemented
+    alt interfaceImplemented が InterfaceType.UserA の場合
+      app -> app: module を IUserA にキャストして\nuserAList に追加
+    else interfaceImplemented が InterfaceType.UserB の場合
+      app -> app: module を IUserB にキャストして\nuserBList に追加
+    end
+  end
+end
+app --> core
+core --> moaf
+moaf --> app
+app --> program
+
+@enduml
+
+----
+
+[plantuml]
+----
+@startuml
+title ModuleA の使用 (AppMain から ModuleAPortal の UserMethodA を呼び出す)
+
+participant "AppMain" as app
+participant "IUserA" as userA
+participant "ModuleAPortal" as moduleA
+participant "IUserB" as userB
+participant "IUserB の実体 (ModuleBPortal など)" as moduleB
+
+app -> app: ModuleA を使用するための\n任意の操作を実行
+loop userAList をループ
+  app -> userA: UserMethodA()
+  userA -> moduleA: UserMethodA()
+  moduleA -> moduleA: 任意の処理
+  loop userBList をループ
+    moduleA -> userB: UserMethodB()
+    userB -> moduleB: UserMethodB()
+    moduleB -> moduleB: 任意の処理
+    moduleB --> userB
+    userB --> moduleA
+  end
+  moduleA --> userA
+  userA --> app
+end
+
+@enduml
+----
+
+* 上記の2種のシーケンスにそって、ホストアプリケーションは、モジュールの実体を把握することなく、モジュールの機能を使用する。
+* `IUserInterface` を実装するインスタンスをまとめて所持するクラスを用意し (今回は `AppMain`) 、そのクラスの中で、各インスタンスがどのインターフェースを実装し、どのインターフェースを使用するかを把握する。 +
+その上で、各インターフェースを実装するリストを作成し、そのリストをループして各モジュールのメソッドを呼び出す。
+* 各モジュールにおいては、`Initialize` メソッドを実行した際に、使用するインターフェースを実装したインスタンスのリストを取得できるため、そのリストを所持しておくことで、他モジュールの機能が使用可能となる。
+
+== 改訂履歴
+[cols="1,2,2,3", options="header"]
+|===
+|版数 |改訂日 |改訂箇所 |改訂内容
+|初版 |2026/04/12 |- |-
+|===
